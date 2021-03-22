@@ -7,7 +7,7 @@
     <div>
       <el-form ref='loginFormRef' label-width="0px" :rules='loginFormRules' class="login_form" :model="loginForm" >
         <el-form-item prop="username">
-          <el-input prefix-icon="el-icon-user" v-model="loginForm.username">
+          <el-input prefix-icon="el-icon-user" v-model.trim="loginForm.username">
           </el-input>
         </el-form-item>
         <el-form-item prop="password">
@@ -15,7 +15,7 @@
           </el-input>
         </el-form-item>
         <el-form-item class="btns">
-          <el-button type="primary">登录</el-button>
+          <el-button type="primary" @click="login">登录</el-button>
           <el-button type="info" @click="resetLoginForm">重置</el-button>
         </el-form-item>
       </el-form>
@@ -32,8 +32,8 @@ export default {
    return {
     //  登录表单的数据绑定对象
      loginForm:{
-        username:'',
-        password:''
+        username:'admin',
+        password:'123456'
      },
      loginFormRules:{
        username:[{required:true, message:'请输入登录名称',trigger:'blur' },
@@ -49,6 +49,26 @@ export default {
   methods: {
     resetLoginForm(){
       this.$refs.loginFormRef.resetFields()
+    },
+    // 表单数据的预验证
+    login(){
+      this.$refs.loginFormRef.validate(async valid=>{
+          console.log(valid)
+        if(!valid) return;
+        // 如果valid为false 直接return 不发送请求
+       const {data:result}= await this.$http.post('login',this.loginForm)
+        console.log(result)
+        if(result.meta.status !==200) return this.$message.error("登录失败")
+        this.$message.success("登录成功")
+
+        // token保存到了sessionStorage中
+        window.sessionStorage.setItem('token',result.data.token)
+        
+        this.$router.push("/home")
+
+
+      })
+                              //  接受一个回调函数 yichan
     }
   },
 }
