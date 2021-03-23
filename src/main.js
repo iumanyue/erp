@@ -16,6 +16,13 @@ Vue.prototype.$http = axios
 
 
 axios.defaults.baseURL = 'http://www.ysqorz.top:8888/api/private/v1/'
+// 挂载到原型对象之前,做响应拦截 把token
+axios.interceptors.request.use(config=>{
+  console.log(config)
+  config.headers.Authorization = window.sessionStorage.getItem('token')
+  //必须return
+  return config
+})
 
 
 
