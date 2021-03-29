@@ -32,8 +32,8 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" width="180px">
-        <template>
-            <el-button type="primary" icon="el-icon-edit" size="mini"></el-button>
+        <template  v-slot="scope">
+            <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row.id)"></el-button>
             <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
             <el-tooltip effect="dark" content="分配角色" placement="top" :enterable="false">
                <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
@@ -79,7 +79,17 @@
       </span>
     </el-dialog>
 
-
+    <!-- 修改用户对话框 -->
+    <el-dialog
+      title="修改用户"
+      :visible.sync="editDialogVisible"
+      width="50%">
+      <span>这是一段信息</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editDialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
 
    
 </div>
@@ -120,6 +130,8 @@ export default {
     userlist:[],
     total:0,
     addDialogVisible:false,
+    // 编辑用户
+    editDialogVisible:false,
     // 添加用户表单数据
     addForm:{
       username:'',
@@ -145,7 +157,9 @@ export default {
 ,
         {validator:checkMobile,trigger:'blur'}
       ]
-    }
+    },
+    // 查询到的用户信息对象
+    editForm:{}
    }
   },
   created() {
@@ -186,6 +200,7 @@ export default {
         this.$refs.addFormRef.resetFields()
     },
     addUser(){
+      // 表单预言证
       this.$refs.addFormRef.validate(async valid =>{
         if(!valid) return
 
@@ -200,6 +215,21 @@ export default {
             this.addDialogVisible = false
             this.getUserLists()
       })
+    },
+    // 展示编辑用户
+    async showEditDialog(id){
+      // console.log(id)
+    const{data:res} = await this.$http.get('users/'+ id)
+
+      if(res.meta.status!==200){
+        return this.$message.error('查询用户失败')
+      }
+
+      this.editForm = res.data
+      console.log(res.data)
+
+
+      this.editDialogVisible = true
     }
   },
 }
